@@ -16,7 +16,7 @@ class RandomPicker:
     def get_random_subset(self, input_dataset, requested_size):
         result = []
         for num, apk in enumerate(input_dataset, 1):
-            if requested_size is DownloadType.ALL or len(result) < requested_size:
+            if requested_size is DownloadType.ALL or len(result) < requested_size or True:
                 result.append(apk)
             else:
                 s = int(random.random() * num)

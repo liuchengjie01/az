@@ -16,9 +16,10 @@ def run(input_file, key, number, criteria, metadata, threads, out_dir='azoo_data
 
         dataset = FilteredDataset(source, criteria)
         random_subset = RandomPicker(seed=seed).get_random_subset(dataset, number)
-        DatasetDownloader(dataset=random_subset, out_dir=out_dir, key=key, threads=threads).download()
+        DatasetDownloader(dataset=random_subset, out_dir=out_dir, key=key, threads=threads).download(number)
 
         MetadataSaver(random_subset, out_dir).save(metadata)
+        logging.info('all processes done.')
     except KeyboardInterrupt:
         logging.info('Keyboard interrupt')
         sys.exit()

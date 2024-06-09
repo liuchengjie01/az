@@ -1,9 +1,14 @@
 from modules.entities.entity import Entity
+import logging
 
 
 class MarketsSet(set):
     def __init__(self, markets):
-        super().__init__(markets.split('|'))
+        if isinstance(markets, list):
+            super().__init__(markets)
+            #logging.info(f'[m_init] {markets}')
+        else:
+            super().__init__(markets.split('|'))
 
     def __str__(self):
         return '|'.join(sorted(self))
@@ -21,6 +26,9 @@ class Apk(Entity):
         self.vt_detection = int(vt_detection) if vt_detection else None
         self.vt_scan_date = vt_scan_date
         self.dex_size = int(dex_size) if dex_size else None
+        if isinstance(markets, list):
+            print(f'[m] {markets}')
+            logging.warning(f'[m] {markets}')
         self.markets = MarketsSet(markets) if markets else None
 
     def _key(self):
