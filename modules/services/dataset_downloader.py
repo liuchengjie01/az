@@ -19,7 +19,7 @@ class DatasetDownloader:
         self.threads = threads
 
     def download(self, num):
-        logging.info(f'DOWNLOADING {len(self.dataset)}, number of threads {self.threads}')
+        logging.info(f'DOWNLOADING {len(self.dataset)}, APK NUM: {num}, number of threads {self.threads}')
         if not os.path.exists(self.out_dir):
             os.makedirs(self.out_dir)
 

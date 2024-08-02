@@ -1,3 +1,5 @@
+import os
+
 from modules.cli.user_config import UserConfig
 from modules.enums import DownloadType
 
@@ -17,7 +19,16 @@ class Parser:
         vt_detection_from, vt_detection_to = self.args.vtdetection.split(self.RANGE_ARGS_DELIMITER) if self.args.vtdetection else (None, None)
         markets = self.args.markets.split(self.LIST_ARGS_DELIMITER) if self.args.markets else None
         pkg_name = self.args.pkgname.split(self.LIST_ARGS_DELIMITER) if self.args.pkgname else None
-        sha256 = self.get_hash_list(self.args.sha256) if self.args.sha256 else None
+        sha256 = None
+        print(f'[+] sha256: {self.args.sha256}')
+        if os.path.isfile(self.args.sha256):
+            # read sha256 from file
+            with open(self.args.sha256) as file:
+                sha256 = [line.strip().upper() for line in file]
+        elif self.args.sha256:
+            # split sha256, format:xxx,xxx,xxx
+            sha256 = self.get_hash_list(self.args.sha256)
+        #sha256 = self.get_hash_list(self.args.sha256) if self.args.sha256 else None
         sha1 = self.get_hash_list(self.args.sha1) if self.args.sha1 else None
         md5 = self.get_hash_list(self.args.md5) if self.args.md5 else None
         metadata = self.args.metadata.split(self.LIST_ARGS_DELIMITER) if self.args.metadata else self.METADATA_DEFAULT_VALUE

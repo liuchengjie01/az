@@ -16,4 +16,4 @@ nohup az -n ${NUM} \
 	-vt 0:0 \
 	-d ${DATE} \
 	-i ${INPUT} \
-	> download_${YEAR}.log 2>&1 &
+	> log/download_${YEAR}.log 2>&1 &

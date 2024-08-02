@@ -77,3 +77,6 @@ tests/unit/out
 
 out/
 .DS_Store
+
+log/
+sha256_list/
