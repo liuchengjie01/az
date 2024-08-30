@@ -47,9 +47,9 @@ def run(number, dexdate, apksize, vtdetection, pkgname, markets, metadata, out, 
         args = Arguments(number, dexdate, apksize, vtdetection, markets, pkgname, metadata, sha256, sha1, md5, key, input_file)
         Validator(args).validate()
         logging_util.setup_logging()
-        number, *criteria_args, metadata, key, input_file = Parser(args).parse()
+        number, *criteria_args, metadata, key, input_file, label_map = Parser(args).parse()
         criteria = Criteria(*criteria_args)
-        az.run(input_file, key, number, criteria, out_dir=out if out else os.getcwd(), metadata=metadata, seed=seed, threads=threads)
+        az.run(input_file, key, number, criteria, out_dir=out if out else os.getcwd(), metadata=metadata, seed=seed, threads=threads, label_map=label_map)
     except NoArgsException:
         with click.Context(run) as ctx:
             click.echo(run.get_help(ctx))

@@ -1,5 +1,5 @@
 class Arguments(object):
-    def __init__(self, number=None, dexdate=None, apksize=None, vtdetection=None, markets=None, pkgname=None, metadata=None, sha256=None, sha1=None, md5=None, key=None, input_file=None):
+    def __init__(self, number=None, dexdate=None, apksize=None, vtdetection=None, markets=None, pkgname=None, metadata=None, sha256=None, sha1=None, md5=None, key=None, input_file=None, labels=None):
         self.number = number
         self.dexdate = dexdate
         self.apksize = apksize
@@ -12,3 +12,4 @@ class Arguments(object):
         self.md5 = md5
         self.key = key
         self.input_file = input_file
+        self.labels = labels

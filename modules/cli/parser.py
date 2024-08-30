@@ -1,4 +1,10 @@
+import glob
+import json
 import os
+import random
+from cProfile import label
+
+from androguard.decompiler.dad.ast import local
 
 from modules.cli.user_config import UserConfig
 from modules.enums import DownloadType
@@ -20,11 +26,29 @@ class Parser:
         markets = self.args.markets.split(self.LIST_ARGS_DELIMITER) if self.args.markets else None
         pkg_name = self.args.pkgname.split(self.LIST_ARGS_DELIMITER) if self.args.pkgname else None
         sha256 = None
+        label_map = None
         print(f'[+] sha256: {self.args.sha256}')
         if os.path.isfile(self.args.sha256):
             # read sha256 from file
             with open(self.args.sha256) as file:
                 sha256 = [line.strip().upper() for line in file]
+        elif os.path.isdir(self.args.sha256):
+            # read sha256 from dir
+            files = glob.glob(self.args.sha256 + os.sep + '*_malware.txt')
+            sha256 = []
+            label_map = dict()
+            for file in files:
+                year = os.path.basename(file).split('_')[0]
+                label = os.path.basename(file).split('_')[1]
+                all_sha256 = []
+                with open(file, 'r') as f:
+                    for line in f:
+                        all_sha256.append(line.strip().upper())
+                random.shuffle(all_sha256)
+                tmp_sha256 = all_sha256[:100] if label == 'trojan' or label == 'adware' else all_sha256
+                for line in tmp_sha256:
+                    label_map[line] = (year, label)
+                    sha256.append(line)
         elif self.args.sha256:
             # split sha256, format:xxx,xxx,xxx
             sha256 = self.get_hash_list(self.args.sha256)
@@ -38,7 +62,20 @@ class Parser:
             input_file = input_file if input_file else user_config.in_file
             key = key if key else user_config.key
 
-        return number, dex_date_from, dex_date_to, apksize_from, apksize_to, vt_detection_from, vt_detection_to, markets, pkg_name, sha256, sha1, md5, metadata, key, input_file
+        return number, dex_date_from, dex_date_to, apksize_from, apksize_to, vt_detection_from, vt_detection_to, markets, pkg_name, sha256, sha1, md5, metadata, key, input_file, label_map
 
     def get_hash_list(self, apk_hashes):
         return [apk_hash.upper() for apk_hash in apk_hashes.split(self.LIST_ARGS_DELIMITER)]
+
+    def get_mapping(self, label_dir):
+        if not os.path.exists(label_dir):
+            print(f'proposed dir not exist')
+            raise FileNotFoundError(f'label_dir: {label_dir}')
+        files = glob.glob(label_dir + os.sep + '*' + os.sep + 'proposed.json')
+        res = dict()
+        for file in files:
+            with open(file, 'r') as f:
+                data = json.load(f)
+                res.update(data)
+        new_res = {k.upper(): v for k, v in res.items()}
+        return new_res

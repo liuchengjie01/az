@@ -2,6 +2,7 @@ import logging
 import multiprocessing
 import os
 import sys
+from datetime import datetime
 
 import requests
 import time
@@ -18,7 +19,7 @@ class DatasetDownloader:
         self.url_constructor = url_constructor
         self.threads = threads
 
-    def download(self, num):
+    def download(self, num, label_map):
         logging.info(f'DOWNLOADING {len(self.dataset)}, APK NUM: {num}, number of threads {self.threads}')
         if not os.path.exists(self.out_dir):
             os.makedirs(self.out_dir)
@@ -27,7 +28,7 @@ class DatasetDownloader:
             download_cnt = manager.Value('i', num)
             stop_event = manager.Event()
             lock = manager.Lock()
-            map_args = [(apk, download_cnt, stop_event, lock) for apk in self.dataset]
+            map_args = [(apk, download_cnt, stop_event, lock, label_map) for apk in self.dataset]
             with multiprocessing.Pool(self.threads) as pool:
                 results = []
                 for result in pool.starmap(self.download_apk,map_args):
@@ -35,11 +36,14 @@ class DatasetDownloader:
                         pool.terminate()
                         break
 
-    def download_apk(self, apk, cnt, stop_event, lock):
+    def download_apk(self, apk, cnt, stop_event, lock, label_map):
         with lock:     
             if stop_event.is_set():
                 return
-        apk_save_path = os.path.join(self.out_dir, apk.sha256) + '.apk'
+        year, label = label_map[apk.sha256]
+        apk_save_path = os.path.join(self.out_dir, year, label, apk.sha256) + '.apk'
+        if not os.path.exists(os.path.join(self.out_dir, year, label)):
+            os.makedirs(os.path.join(self.out_dir, year, label))
         try:
             if os.path.exists(apk_save_path):
                 return
