@@ -18,7 +18,7 @@ class Parser:
     def __init__(self, args):
         self.args = args
 
-    def parse(self):
+    def parse(self, exist_sha256):
         number = int(self.args.number) if self.args.number else DownloadType.ALL
         dex_date_from, dex_date_to = self.args.dexdate.split(self.RANGE_ARGS_DELIMITER) if self.args.dexdate else (None, None)
         apksize_from, apksize_to = self.args.apksize.split(self.RANGE_ARGS_DELIMITER) if self.args.apksize else (None, None)
@@ -27,13 +27,15 @@ class Parser:
         pkg_name = self.args.pkgname.split(self.LIST_ARGS_DELIMITER) if self.args.pkgname else None
         sha256 = None
         label_map = None
-        print(f'[+] sha256: {self.args.sha256}')
+        print(f'[+] sha256: {self.args.sha256}, type: {type(self.args.sha256)}')
         if os.path.isfile(self.args.sha256):
             # read sha256 from file
+            print(f'[+] sha256 is file')
             with open(self.args.sha256) as file:
                 sha256 = [line.strip().upper() for line in file]
         elif os.path.isdir(self.args.sha256):
             # read sha256 from dir
+            print(f'[+] sha256 is dir')
             files = glob.glob(self.args.sha256 + os.sep + '*_malware.txt')
             sha256 = []
             label_map = dict()
@@ -45,11 +47,12 @@ class Parser:
                     for line in f:
                         all_sha256.append(line.strip().upper())
                 random.shuffle(all_sha256)
-                tmp_sha256 = all_sha256[:100] if label == 'trojan' or label == 'adware' else all_sha256
+                tmp_sha256 = all_sha256[:2000] if label == 'trojan' or label == 'adware' else all_sha256
                 for line in tmp_sha256:
                     label_map[line] = (year, label)
                     sha256.append(line)
-        elif self.args.sha256:
+        elif self.args.sha256 and not sha256:
+            print(f'[+] sha256 is str')
             # split sha256, format:xxx,xxx,xxx
             sha256 = self.get_hash_list(self.args.sha256)
         #sha256 = self.get_hash_list(self.args.sha256) if self.args.sha256 else None
@@ -62,6 +65,10 @@ class Parser:
             input_file = input_file if input_file else user_config.in_file
             key = key if key else user_config.key
 
+        if sha256:
+            new_sha256 = list(set(sha256) - exist_sha256)
+            sha256 = new_sha256
+            print(f'[+] sha256 len: {len(sha256)}, type: {type(sha256)}')
         return number, dex_date_from, dex_date_to, apksize_from, apksize_to, vt_detection_from, vt_detection_to, markets, pkg_name, sha256, sha1, md5, metadata, key, input_file, label_map
 
     def get_hash_list(self, apk_hashes):

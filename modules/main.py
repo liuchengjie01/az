@@ -1,3 +1,4 @@
+import glob
 import os
 import sys
 
@@ -47,7 +48,8 @@ def run(number, dexdate, apksize, vtdetection, pkgname, markets, metadata, out, 
         args = Arguments(number, dexdate, apksize, vtdetection, markets, pkgname, metadata, sha256, sha1, md5, key, input_file)
         Validator(args).validate()
         logging_util.setup_logging()
-        number, *criteria_args, metadata, key, input_file, label_map = Parser(args).parse()
+        exist_sha256 = set([os.path.basename(item).split('.')[0] for item in glob.glob(out + os.sep + '*' + os.sep + '*' + os.sep + '*.apk')])
+        number, *criteria_args, metadata, key, input_file, label_map = Parser(args).parse(exist_sha256)
         criteria = Criteria(*criteria_args)
         az.run(input_file, key, number, criteria, out_dir=out if out else os.getcwd(), metadata=metadata, seed=seed, threads=threads, label_map=label_map)
     except NoArgsException:
