@@ -59,3 +59,12 @@ This means: download 10 apks with the dexdate starting from the
   --version                Show the version and exit.
   --help                   Show this message and exit.  
 ```
+
+#### Download Type
+```
+1. 直接给定sha256的值，分割sha256的值进行下载到给定的out目录
+2. 给定指定的sha256文件，从文件中读取sha256的值形成列表，将其下载到给定的out目录
+3. 给定指定的sha256文件夹，通过特定的year和label来检索得到sha256列表，下载apk到os.path.join(args.output, year, label)中，
+此时的year和label通过label_map索引得到
+4. 根据给定的条件筛选得到sha256列表，如（dexdate, vtdetection,markets）等，下载到给定的out目录
+```

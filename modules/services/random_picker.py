@@ -22,4 +22,5 @@ class RandomPicker:
                 s = int(random.random() * num)
                 if s < requested_size:
                     result[s] = apk
+        logging.info(f'RANDOM PICKER NUM: {len(result)}')
         return Dataset(*result)

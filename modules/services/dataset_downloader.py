@@ -40,15 +40,20 @@ class DatasetDownloader:
         with lock:     
             if stop_event.is_set():
                 return
-        year, label = label_map[apk.sha256]
-        apk_save_path = os.path.join(self.out_dir, year, label, apk.sha256) + '.apk'
-        if not os.path.exists(os.path.join(self.out_dir, year, label)):
-            os.makedirs(os.path.join(self.out_dir, year, label))
+        if label_map:
+            year, label = label_map[apk.sha256]
+            apk_save_path = os.path.join(self.out_dir, year, label, apk.sha256) + '.apk'
+            if not os.path.exists(os.path.join(self.out_dir, year, label)):
+                os.makedirs(os.path.join(self.out_dir, year, label))
+        else:
+            apk_save_path = os.path.join(self.out_dir, apk.sha256) + '.apk'
+
         try:
             if os.path.exists(apk_save_path):
+                logging.warning(f'apk with pkg {apk.sha256} already exists, saving by {apk_save_path}')
                 return
                 apk_save_path = apk_save_path.replace('.apk', f'{apk.sha1}.apk')
-                logging.warning(f'apk with pkg {apk.sha256} already exists, saving by {apk_save_path}')
+
             logging.debug(f'DOWNLOAD {apk.sha256}... ')
             apk_url = self.url_constructor.construct(apk)
             response = requests.get(apk_url)

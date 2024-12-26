@@ -2,9 +2,6 @@ import glob
 import json
 import os
 import random
-from cProfile import label
-
-from androguard.decompiler.dad.ast import local
 
 from modules.cli.user_config import UserConfig
 from modules.enums import DownloadType
@@ -27,13 +24,13 @@ class Parser:
         pkg_name = self.args.pkgname.split(self.LIST_ARGS_DELIMITER) if self.args.pkgname else None
         sha256 = None
         label_map = None
-        print(f'[+] sha256: {self.args.sha256}, type: {type(self.args.sha256)}')
-        if os.path.isfile(self.args.sha256):
+        print(f'[+] sha256: {self.args.sha256}, type: {type(self.args.sha256)}, vt_from: {vt_detection_from}, vt_to: {vt_detection_to}')
+        if self.args.sha256 and os.path.isfile(self.args.sha256):
             # read sha256 from file
             print(f'[+] sha256 is file')
             with open(self.args.sha256) as file:
                 sha256 = [line.strip().upper() for line in file]
-        elif os.path.isdir(self.args.sha256):
+        elif self.args.sha256 and os.path.isdir(self.args.sha256):
             # read sha256 from dir
             print(f'[+] sha256 is dir')
             files = glob.glob(self.args.sha256 + os.sep + '*_malware.txt')
@@ -51,6 +48,7 @@ class Parser:
                 for line in tmp_sha256:
                     label_map[line] = (year, label)
                     sha256.append(line)
+            print(f'[+] sha256 not filtered: {len(sha256)}, exist_sha256: {len(exist_sha256)}')
         elif self.args.sha256 and not sha256:
             print(f'[+] sha256 is str')
             # split sha256, format:xxx,xxx,xxx
@@ -69,6 +67,9 @@ class Parser:
             new_sha256 = list(set(sha256) - exist_sha256)
             sha256 = new_sha256
             print(f'[+] sha256 len: {len(sha256)}, type: {type(sha256)}')
+            if len(sha256) == 0:
+                print(f'[-] all sha256 has been downloaded.')
+                exit(1)
         return number, dex_date_from, dex_date_to, apksize_from, apksize_to, vt_detection_from, vt_detection_to, markets, pkg_name, sha256, sha1, md5, metadata, key, input_file, label_map
 
     def get_hash_list(self, apk_hashes):

@@ -2,7 +2,8 @@
 
 SAVE_DIR=/data/androzoo/n_malware
 NUM=1000
-SHA256_PATH=/data/androzoo/n_malware_list/$1
+#SHA256_PATH=/data/androzoo/n_malware_list/$1
+SHA256_PATH=$1
 #YEAR=$4
 #LABEL=$5
 #SHA256_PATH=${SHA256_PATH}/${YEAR}_${LABEL}_malware.txt
@@ -16,4 +17,4 @@ nohup az -n ${NUM} \
 	-o ${SAVE_DIR} \
 	-i ${INPUT} \
 	--sha256 ${SHA256_PATH} \
-	> log/download_$1.log 2>&1 &
+	> log/download_type.log 2>&1 &
